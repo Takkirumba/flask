@@ -78,20 +78,32 @@ def index():
 @app.route('/process', methods=['POST'])
 @login_required
 def process():
-    amount = float(request.form.get('amount'))
-    action = request.form.get('action')
-    if action == 'withdraw' and current_user.balance < amount:
-        flash('ยอดเงินในบัญชีไม่เพียงพอ', 'danger')
-    else:
-        if action == 'deposit':
-            current_user.balance += amount
-            t_type = "ฝากเงิน"
+    try:
+        amount = float(request.form.get('amount'))
+        action = request.form.get('action')
+
+        # เงื่อนไขตรวจสอบ: ห้ามใส่ค่าติดลบหรือศูนย์
+        if amount <= 0:
+            flash('จำนวนเงินไม่ถูกต้อง', 'danger')
+            return redirect(url_for('index'))
+
+        if action == 'withdraw' and current_user.balance < amount:
+            flash('ยอดเงินในบัญชีไม่เพียงพอ', 'danger')
         else:
-            current_user.balance -= amount
-            t_type = "ถอนเงิน"
-        db.session.add(Transaction(account_number=current_user.account_number, type=t_type, amount=amount))
-        db.session.commit()
-        flash(f'ทำรายการ {t_type} สำเร็จ', 'success')
+            if action == 'deposit':
+                current_user.balance += amount
+                t_type = "ฝากเงิน"
+            else:
+                current_user.balance -= amount
+                t_type = "ถอนเงิน"
+            
+            db.session.add(Transaction(account_number=current_user.account_number, type=t_type, amount=amount))
+            db.session.commit()
+            flash(f'ทำรายการ {t_type} สำเร็จ', 'success')
+            
+    except ValueError:
+        flash('กรุณาระบุจำนวนเงินเป็นตัวเลขที่ถูกต้อง', 'danger')
+
     return redirect(url_for('index'))
 
 @app.route('/delete_account')

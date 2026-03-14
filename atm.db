@@ -1,0 +1,21 @@
+-- 1. ลบตารางเก่าออกก่อนเพื่อป้องกันโครงสร้างซ้ำซ้อน
+DROP TABLE IF EXISTS transaction;
+DROP TABLE IF EXISTS account;
+
+-- 2. สร้างตารางบัญชีใหม่ (เพิ่มคอลัมน์ password)
+CREATE TABLE account (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    account_number VARCHAR(20) NOT NULL UNIQUE,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL, -- เพิ่มคอลัมน์นี้เพื่อรองรับระบบ Login
+    balance FLOAT DEFAULT 0.0
+);
+
+-- 3. สร้างตารางธุรกรรม
+CREATE TABLE transaction (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    account_number VARCHAR(20) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    amount FLOAT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
